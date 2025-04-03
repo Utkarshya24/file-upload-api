@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: File Upload API
+  version: 1.0.0
+paths:
+  /api/upload:
+    post:
+      summary: Upload a file
+      security:
+        - apiKey: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: File uploaded
+  /api/files/{id}:
+    get:
+      summary: Retrieve a file
+      security:
+        - apiKey: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File retrieved
+    delete:
+      summary: Delete a file
+      security:
+        - apiKey: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File deleted
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
