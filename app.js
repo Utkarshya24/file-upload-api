@@ -1,5 +1,7 @@
 const express = require('express');
-const connectDB = require('./config/db');
+
+// const connectDB = require('./config/db');
+
 const fileRoutes = require('./routes/fileRoutes');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('yamljs');
@@ -10,7 +12,7 @@ const { cleanupFiles } = require('./utils/cleanup');
 dotenv.config();
 const app = express();
 
-connectDB();
+// connectDB();
 app.use(express.json());
 app.use(express.static('public')); 
 
