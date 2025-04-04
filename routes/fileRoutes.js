@@ -48,7 +48,7 @@ router.delete('/files/:id', auth, async (req, res) => {
     if (!file) return res.status(404).json({ message: 'File not found' });
 
     await deleteFromS3(file.filename); // Delete from S3
-    await file.remove(); // Delete from MongoDB
+    await File.findByIdAndDelete(req.params.id); // Delete from MongoDB
 
     res.json({ message: 'File deleted successfully' });
   } catch (err) {

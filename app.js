@@ -4,6 +4,7 @@ const fileRoutes = require('./routes/fileRoutes');
 const swaggerUi = require('swagger-ui-express');
 const yaml = require('yamljs');
 const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 const app = express();
@@ -14,8 +15,14 @@ connectDB();
 // Middleware
 app.use(express.json());
 
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15, // Max 10 requests per IP
+    message: 'Too many request, please try again later',
+  });
+
 // Routes
-app.use('/api', fileRoutes);
+app.use('/api',limiter, fileRoutes);
 
 // Swagger Documentation
 const swaggerDocument = yaml.load('./swagger.yaml');
