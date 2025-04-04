@@ -3,25 +3,23 @@ const router = express.Router();
 const File = require('../models/File');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const { uploadToS3, deleteFromS3 } = require('../utils/s3');
+const fs = require('fs');
+const path = require('path');
 
 // Upload File
 router.post('/upload', auth, upload.single('file'), async (req, res) => {
   try {
-    const s3Response = await uploadToS3(req.file);
-
     const file = new File({
-      filename: s3Response.Key,
-      path: s3Response.Location, // URL of the file in S3
+      filename: req.file.filename,
+      path: `/public/uploads/${req.file.filename}`, // Local path
       size: req.file.size,
       mimetype: req.file.mimetype,
     });
     await file.save();
-
     res.status(201).json({
       message: 'File uploaded successfully',
       fileId: file._id,
-      url: file.path,
+      url: `http://localhost:${process.env.PORT}${file.path}`,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -34,8 +32,8 @@ router.get('/files/:id', auth, async (req, res) => {
     const file = await File.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
 
-    // Redirect to S3 URL (browser will handle viewing/downloading)
-    res.redirect(file.path);
+    const filePath = path.join(__dirname, '..', file.path);
+    res.sendFile(filePath);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -47,8 +45,9 @@ router.delete('/files/:id', auth, async (req, res) => {
     const file = await File.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
 
-    await deleteFromS3(file.filename); // Delete from S3
-    await File.findByIdAndDelete(req.params.id); // Delete from MongoDB
+    const filePath = path.join(__dirname, '..', file.path);
+    fs.unlinkSync(filePath); // Local file delete
+    await File.findByIdAndDelete(req.params.id); // MongoDB se delete
 
     res.json({ message: 'File deleted successfully' });
   } catch (err) {

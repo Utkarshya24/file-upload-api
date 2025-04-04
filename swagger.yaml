@@ -2,6 +2,10 @@ openapi: 3.0.0
 info:
   title: File Upload API
   version: 1.0.0
+  description: API for uploading, retrieving, and deleting files
+servers:
+  - url: http://localhost:4000
+    description: Local development server
 paths:
   /api/upload:
     post:
@@ -53,3 +57,5 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+      description: "Enter your API key here. Example: `secretkey`"
+      x-example: "secretkey"
